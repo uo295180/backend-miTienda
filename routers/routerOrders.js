@@ -38,8 +38,25 @@ routerOrders.post("/", async (req, res) => {
     return res.json({ inserted: insertedOrder})
 })
 
-routerOrders.post("/", async (req, res) => {
+routerOrders.post("/:idOrder/items", async (req, res) => {
+    let idOrder = req.params.idOrder
+    if(idOrder == undefined){
+        return res.status(400).json({error:"No id of the order"})
+    }
+    let idItem = req.body.idItem
+    if(idItem == undefined){
+        return res.status(400).json({error:"No id of the item in bodys"})
+    }
 
+    let units = req.body.units
+    if(units == undefined){
+        units = 1
+    }
+
+    database.connect();
+    let result = await database.query("INSERT INTO oder_items (idOrder, idItem, units) VALUES (?,?,?)", [idOrder,idItem,units])
+    database.disConnect();
+    res.json(result)
 })
 
 
