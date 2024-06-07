@@ -54,7 +54,14 @@ routerOrders.post("/:idOrder/items", async (req, res) => {
     }
 
     database.connect();
-    let result = await database.query("INSERT INTO oder_items (idOrder, idItem, units) VALUES (?,?,?)", [idOrder,idItem,units])
+    let itemsInOrder = await database.query("SELECT * FROM oder_items WHERE idOrder = ? AND idItem = ?", [idOrder,idItem])
+    let result = undefined
+    if(itemsInOrder.length > 0){
+        result = await database.query("UPDATE oder_items SET units = ? WHERE idOrder = ? AND idItem = ?", [Number(units)+Number(itemsInOrder[0].units),idOrder,idItem])
+    }
+    else{
+        result = await database.query("INSERT INTO oder_items (idOrder, idItem, units) VALUES (?,?,?)", [idOrder,idItem,units])
+    }
     database.disConnect();
     res.json(result)
 })
